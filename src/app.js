@@ -30,6 +30,25 @@ class IndecisionApp extends React.Component {
     };
   }
 
+  componentDidMount() {
+    try {
+      const options = JSON.parse(localStorage.getItem("options"));
+      if (options) {
+        this.setState(() => ({ options }));
+      }
+    } catch (e) {
+      console.log(e);
+      this.setState(() => ({ options: [] }));
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.options.length !== this.state.options.length) {
+      const json = JSON.stringify(this.state.options);
+      localStorage.setItem("options", json);
+    }
+  }
+
   handleDeleteOptions() {
     this.setState(() => ({ options: [] }));
   }
@@ -106,10 +125,16 @@ const Action = props => {
 };
 
 const Options = props => {
+  const optionsLength = props.options.length;
   return (
     <div>
-      <button onClick={props.handleDeleteOptions}>Remove All</button>
-
+      <button
+        onClick={props.handleDeleteOptions}
+        disabled={optionsLength === 0}
+      >
+        Remove All
+      </button>
+      {optionsLength === 0 && <p>Please add an option to get started.</p>}
       {props.options.map(option => (
         <Option
           key={option}
